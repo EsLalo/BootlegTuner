@@ -24,6 +24,9 @@ async function startSoundDection(){
 
     const buffer = new Float32Array(analyser.fftSize);
 
+    let lastLongTime = 0;
+    const LOG_INTERVAL =1000;
+
     function loop(){
         analyser.getFloatTimeDomainData(buffer);
 
@@ -33,10 +36,16 @@ async function startSoundDection(){
         }
         const rms = Math.sqrt(sumSquares / buffer.length);
 
+        const now = performance.now();
+        if(now - lastLongTime > LOG_INTERVAL){
+            console.log("RMS:", rms);
+            lastLongTime = now;
+        }
+
         if(rms > 0.005){
-            console.log("Sound detected with RMS:", rms);
+            document.getElementById("statusText").textContent = "Sound detected with RMS: " + rms.toFixed(4);
         } else {
-            console.log("No significant sound detected.");
+            document.getElementById("statusText").textContent = "No significant sound detected.";
         }
 
         requestAnimationFrame(loop);
